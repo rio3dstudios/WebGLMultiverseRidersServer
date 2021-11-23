@@ -1,14 +1,12 @@
 {
   "name": "server",
   "version": "0.0.1",
-  "description": "node js server",
+  "description": "Multiverse Riders server",
   "main": "server.js",
-  "engines": {
-    "node": "14.x"
-  },
   "dependencies": {
     "express": "^4.10.4",
-    "socket.io": ">=2.4.0",
+    "shortid": "^2.2.2",
+    "socket.io": "^1.2.1",
     "socketio": "^1.0.0"
   },
   "devDependencies": {},

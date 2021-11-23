@@ -11,7 +11,7 @@ var http = require('http').Server(app); // create a http web server using the ht
 
 var io = require('socket.io')(http); // import socketio communication module
 
-
+var shortId 		= require('shortid');
 
 
 app.use("/public/TemplateData",express.static(__dirname + "/public/TemplateData"));
