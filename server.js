@@ -20,7 +20,11 @@ app.use("/public/Build",express.static(__dirname + "/public/Build"));
 
 app.use(express.static(__dirname+'/public'));
 
+var clients			= [];// to storage clients
+
 var clientLookup = {};
+
+var sockets = {};//// to storage sockets
 
 /**
  * Instance Variables
@@ -189,12 +193,18 @@ io.on('connection', function(socket){
 	  health:100,
 	  maxHealth:100,
 	  roomID:'',
-	  isDead:false
+	  isDead:false,
+	  isMute:false
 	};
 
   console.log("[INFO] player " + current_player.id + ": logged!");
 
   clientLookup[current_player.id] = current_player;
+  
+   //add current_player in clients list
+   clients.push(current_player);
+   
+   sockets[current_player.id] = socket;//add curent user socket
 
     const room = {
 	    name: pack.name,
@@ -252,6 +262,11 @@ socket.on("JOIN_ROOM",function(_data){
       console.log("[INFO] player " + current_player.name + ": logged!");
 
       clientLookup[current_player.id] = current_player;
+  
+      //add current_player in clients list
+      clients.push(current_player);
+   
+      sockets[current_player.id] = socket;//add curent user socket
 
       joinRoom(socket,rooms[pack.roomID]);
     }//END_IF
@@ -386,6 +401,44 @@ socket.on('DAMAGE',function(_data){
 
 
 });//END_SOCKET.ON
+
+socket.on("VOICE", function (data) {
+
+
+  if(current_player)
+  {
+    
+    
+    var newData = data.split(";");
+    newData[0] = "data:audio/ogg;";
+    newData = newData[0] + newData[1];
+
+     
+    clients.forEach(function(u) {
+     
+      if(sockets[u.id]&& u.id!=current_player.id&&!u.isMute &&socket.roomId==sockets[u.id].roomId)
+      {
+    
+        sockets[u.id].emit('UPDATE_VOICE',newData);
+      }
+    });
+    
+    
+
+  }
+ 
+});
+
+socket.on("AUDIO_MUTE", function (data) {
+
+
+if(current_player)
+{
+  current_player.isMute = !current_player.isMute;
+
+}
+
+});
 
 socket.on('disconnect', function ()
 	{
